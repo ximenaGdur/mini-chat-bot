@@ -22,6 +22,7 @@ Este ejercicio consiste en desarrollar un Bot conversacional o Chatbot, el cual 
 
 ## Posibles mejoras
 
+- Paquetes que son vulnerabilidades.
 
 ## ¿Como correrlo?
 

@@ -4,6 +4,7 @@ import Question from '../models/Question/Question';
 
 class QuestionController {
   private static DefaultMessage = "I'm sorry, I didn't understand that question.";
+  private static attributeLengths = {"keyword": 100, "message": 500, "response": 1000};
 
   /**
    * Gets all keywords stored in the database.
@@ -41,6 +42,13 @@ class QuestionController {
    */
   public static async getAnswer(req: Request, res: Response): Promise<void> {
     const questionAsked = req.params.message;
+
+    // Validate input
+    if (typeof questionAsked !== 'string' || questionAsked.trim().length === 0) {
+      res.status(400).json({ message: 'Invalid question input' });
+      return;
+    }
+
     try {
       const allKeywords = await QuestionController.getAllKeywords();
       const keywordInQuestion = QuestionController.getKeywordInQuestion(allKeywords, questionAsked);
@@ -77,16 +85,35 @@ class QuestionController {
   }
 
   /**
+   * Validates if input is valid or not.
+   * @param {any} input Object to validate. 
+   * @param {number} length Expected length.
+   * @returns {boolean} Whether it's valid or not.
+   */
+  private static isInvalid(input: any, length: number): boolean {
+    return typeof input != 'string' || input.length <= 0 || input.length > length;
+  }
+
+
+  /**
    * Creates a new question and stores it in the database.
    * @param {Request} req Parameters for request.
    * @param {Response} res Result of get operation.
    */
   public static async createQuestion(req: Request, res: Response): Promise<void> {
-    const question = new Question({
-      keyword: req.body.keyword,
-      message: req.body.message,
-      response: req.body.response,
-    });
+    const { keyword, message, response } = req.body;
+
+    // Validate input
+    if (
+      this.isInvalid(keyword, this.attributeLengths["keyword"]) ||
+      this.isInvalid(message, this.attributeLengths["message"]) ||
+      this.isInvalid(response, this.attributeLengths["response"])
+    ) {
+      res.status(400).json({ message: 'Invalid input data' });
+      return;
+    }
+
+    const question = new Question({ keyword, message, response });
 
     try {
       const newQuestion = await question.save();
