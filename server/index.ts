@@ -12,12 +12,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Database connection
-mongoose.connect('mongodb://localhost:27017/myapp')
+mongoose.connect('mongodb://localhost:27017/ChatBot')
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error(err));
 
 // Routes
-app.use('/api/questions', router); // Use the imported router
+app.use('/api/questions', router);
 
 // Start server
 app.listen(port, () => console.log(`Server running on port ${port}`));

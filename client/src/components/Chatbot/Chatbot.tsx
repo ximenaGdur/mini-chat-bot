@@ -1,9 +1,31 @@
-const Chatbot = () => {
-    return (
-        <div>
-        <h1>Chatbot</h1>
-        </div>
-    );
+import React, { useState } from 'react';
+import ChatbotService from 'services/ChatbotService';
+
+const Chatbot: React.FC = () => {
+  const [message, setQuestion] = useState('');
+  const [response, setResponse] = useState('');
+
+  const sendQuestion = async () => {
+    try {
+      const botResponse = await ChatbotService.sendQuestion(message);
+      setResponse(botResponse);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div>
+      <h1>Chatbot</h1>
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setQuestion(e.target.value)}
+      />
+      <button onClick={sendQuestion}>Send</button>
+      <p><strong>Response:</strong> {response}</p>
+    </div>
+  );
 };
 
 export default Chatbot;

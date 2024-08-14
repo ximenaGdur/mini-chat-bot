@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 interface IQuestion extends Document {
   keyword: string;
   message: string;
-  response: string;
+  answer: string;
 }
 
 export default IQuestion;
