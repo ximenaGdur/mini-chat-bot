@@ -53,6 +53,9 @@ const Chatbot: React.FC = () => {
     }
   };
 
+  /**
+   * Changes display of chat.
+   */
   const openChat = () => {
     setIsChatOpen(!isChatOpen);
   };
