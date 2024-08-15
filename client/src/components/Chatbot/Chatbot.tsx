@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import ChatbotService from 'services/ChatbotService';
 
+import "./Chatbot.css";
+
 const Chatbot: React.FC = () => {
   const [message, setQuestion] = useState('');
   const [response, setResponse] = useState('');
@@ -15,7 +17,7 @@ const Chatbot: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className='chatbot'>
       <h1>Chatbot</h1>
       <input
         type="text"

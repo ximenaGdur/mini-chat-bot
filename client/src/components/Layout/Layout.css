@@ -1,26 +1,47 @@
-/* src/components/Layout/Layout.css */
+/* Define custom root variables */
+:root {
+  --pink: #c78292;
+}
+
+/* Set default styles for html, body, and #root */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Set styles for footer */
+.footer {
+  align-items: center;
+  background: var(--pink);
+  color: #fff;
+  display: flex;
+  height: 10%;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Set styles for header */
+.header {
+  align-items: center;
+  background: var(--pink);
+  color: #fff;
+  display: flex;
+  height: 10%;
+  justify-content: center;
+}
+
+/* Set styles for layout */
 .layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-  }
-  
-  .header {
-    background: #333;
-    color: #fff;
-    padding: 1rem;
-    text-align: center;
-  }
-  
-  .main-content {
-    flex: 1;
-    padding: 1rem;
-  }
-  
-  .footer {
-    background: #333;
-    color: #fff;
-    text-align: center;
-    padding: 1rem;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+/* Set styles for main content */
+.main-content {
+  display: flex;
+  height: 80%;
+}
