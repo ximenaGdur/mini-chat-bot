@@ -6,13 +6,16 @@ class QuestionController {
   private static attributeLengths = {"keyword": 100, "message": 500, "response": 1000};
 
   /**
-   * Gets all keywords stored in the database.
-   * @returns {Promise<string[]>} A promise that resolves to an array of keywords.
+   * Gets all questions stored in the database.
+   * @returns {Record<string, IQuestion>>} A promise that resolves to a dictionary of questions.
    */
-  private static async getAllKeywords(): Promise<string[]> {
+  private static async getAllQuestions(): Promise<Record<string, IQuestion>> {
     try {
-      const keywords = await Question.find().select('keyword').lean<IQuestion[]>();
-      return keywords.map((keywordObj: { keyword: string }) => keywordObj.keyword);
+      const questionArray = await Question.find().lean<IQuestion[]>();
+      return questionArray.reduce((dict, question) => {
+        dict[question.keyword] = question;
+        return dict;
+      }, {} as Record<string, IQuestion>);
     } catch (error) {
       console.error(error);
       throw new Error('Failed to retrieve keywords');
@@ -26,13 +29,16 @@ class QuestionController {
    * @returns {string | null} The found keyword or null if not found.
    */
   private static getKeywordInQuestion(keywords: string[], sentence: string): string | null {
-    for (const word of keywords) {
-      if (sentence.includes(word)) {
-        return word;
+    for (const keyword of keywords) {
+      // The 'i' flag for case-insensitive matching and '\b' to match standalone words
+      const regex = new RegExp(`\\b${keyword}\\b`, 'i');
+      if (regex.test(sentence)) {
+        return keyword;
       }
     }
     return null;
   }
+  
 
   /**
    * Validates if input is valid or not.
@@ -46,33 +52,17 @@ class QuestionController {
 
   /**
    * Gets all possible questions that ther bot can answer and returns them to user.
-   * @returns {Promise<string>} All possible questions in a string format.
+   * @returns {string} All possible questions in a string format.
    */
-  private static async getDefaultAnswer(): Promise<string> {
-    const defaultMessage = "I'm sorry, I didn't understand that question.\n\nYou can try one of these:\n";
-    const possibleQuestions = await this.getAllKeywords();
-    let questionString = "";
-    if (possibleQuestions.length != 0)
-      questionString = possibleQuestions.join("\n");
-    return defaultMessage + "\n" + questionString;
-  }
-
-  /**
-   * Gets answer to keyword.
-   * @param {string} keywordInQuestion Keyword to look for.
-   * @returns {Promise<string>} All possible questions in a string format.
-   */
-  private static async getAnswerToKeyword(keywordInQuestion: string): Promise<string> {
-    let answer = "";
-    try {
-      const question: IQuestion | null = await Question.findOne({ keyword: keywordInQuestion }).lean();
-      if (question) {
-        answer = question.answer;
+  private static getDefaultAnswer(allQuestions: IQuestion[]): string {
+    let defaultMessage = "I'm sorry, I didn't understand that question.\n";
+    if (allQuestions.length != 0) {
+      defaultMessage += "\nYou can try one of these:\n";
+      for(const question of allQuestions) {
+        defaultMessage += "- " + question.message + "\n"
       }
-    } catch (error: any) {
-      console.error(error);
     }
-    return answer;
+    return defaultMessage;
   }
 
   /**
@@ -87,42 +77,26 @@ class QuestionController {
     let responseMessage = "";
 
     try {
-      // Checks if input is valid
-      if (!this.isInvalid(decodedMessage, this.attributeLengths["message"])) {
-        // Transforming to lower case
-        const questionAsked = decodedMessage.toLowerCase();
-        
-          // Getting all keywords.
-          const allKeywords = await this.getAllKeywords();
+      // Getting all questions.
+      const allQuestions = await QuestionController.getAllQuestions();
+      if (allQuestions) {
+        // Checks if input is valid
+        if (!QuestionController.isInvalid(decodedMessage, QuestionController.attributeLengths["message"])) {
           // Check if question matches with any keyword.
-          const keywordInQuestion = this.getKeywordInQuestion(allKeywords, questionAsked);
+          const keywordInQuestion = QuestionController.getKeywordInQuestion(Object.keys(allQuestions), decodedMessage);
           // Get response to question associated to that keyword.
           if (keywordInQuestion)
-            responseMessage = await this.getAnswerToKeyword(keywordInQuestion);
-      }
-      if (responseMessage = "") {
-        responseMessage = await this.getDefaultAnswer();
+            responseMessage = allQuestions[keywordInQuestion].answer;
+        }
+        if (responseMessage == "")
+          responseMessage = QuestionController.getDefaultAnswer(Object.values(allQuestions));
+      } else {
+        responseMessage = "Try later."
       }
     } catch (error: any) {
       console.error(error);
     }
-
     res.json({ responseMessage });
-  }
-
-  /**
-   * Gets all questions stored in the database.
-   * @param {Request} req Parameters for request.
-   * @param {Response} res Result of get operation.
-   */
-  public static async getAllQuestions(req: Request, res: Response): Promise<void> {
-    try {
-      const questions = await Question.find().select('message').lean();
-      res.json(questions);
-    } catch (error: any) {
-      console.error(error);
-      res.status(500).send(error);
-    }
   }
 
   /**
@@ -135,9 +109,9 @@ class QuestionController {
 
     // Validate input
     if (
-      this.isInvalid(keyword, this.attributeLengths["keyword"]) ||
-      this.isInvalid(message, this.attributeLengths["message"]) ||
-      this.isInvalid(response, this.attributeLengths["response"])
+      QuestionController.isInvalid(keyword, QuestionController.attributeLengths["keyword"]) ||
+      QuestionController.isInvalid(message, QuestionController.attributeLengths["message"]) ||
+      QuestionController.isInvalid(response, QuestionController.attributeLengths["response"])
     ) {
       res.status(400).json({ message: 'Invalid input data' });
       return;
