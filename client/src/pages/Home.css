@@ -1,5 +1,9 @@
 .home {
     background-image: url("../assets/bonnie.png");
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: contain;
+    margin: auto;
     height: 100%;
     width: 100%;
 }

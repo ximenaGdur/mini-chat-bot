@@ -18,8 +18,7 @@ const ChatbotService = {
         const response = await axios.get(url);
         answer = response.data.responseMessage;
       } catch (error) {
-        console.error('Error sending message to chatbot:', error);
-        throw error;
+        answer = "Try again later."
       }
     }
     return answer;

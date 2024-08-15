@@ -1,3 +1,62 @@
+/* Define custom root variables */
+:root {
+    --smoky-pink: #c78292;
+    --magenta-pink: #af4e65;
+  }
+
 .chatbot {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 40vh;
+}
+
+#chatbot-button {
     background-color: white;
+    color: var(--magenta-pink);
+    width: 100%;
+    height: 10%;
+    box-shadow: 0 0 0 2px var(--magenta-pink);
+    border: none;
+}
+
+.chatbot-sendbutton {
+    background-color: var(--magenta-pink);
+    box-shadow: 0 0 0 2px var(--magenta-pink);
+    color: white;
+    height: 10%;
+    border: none;
+}
+
+#chatbot-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#chat-area {
+    width: 100%;
+    height: 80%;
+    overflow-y:scroll;
+    box-shadow: 0 0 0 2px var(--magenta-pink);
+    padding: 5px;
+}
+
+.bot-text {
+    color: black;
+    text-align: left;
+}
+
+.user-text {
+    color: var(--magenta-pink);
+    text-align: right;
+}
+
+.text-area { 
+    width: 100%;
+    height: 20%;
+    box-shadow: 0 0 0 2px var(--magenta-pink);
+    border: none;
+    outline: 0 none;
+    padding: 5px;
 }
